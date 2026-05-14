@@ -1,0 +1,34 @@
+# Secrets (NEVER commit)
+.env
+.env.local
+.env.*.local
+
+# Garmin session tokens (cached locally per user)
+.garmin_mcp_tokens
+*.tokens
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+dist/
+build/
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
