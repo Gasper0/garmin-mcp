@@ -29,15 +29,20 @@ def _get_client() -> Garmin:
     client = Garmin(email=email, password=password)
 
     # Try loading cached tokens first
-    if TOKEN_CACHE_PATH.exists():
+    if TOKEN_CACHE_PATH.exists() and TOKEN_CACHE_PATH.stat().st_size > 0:
         try:
             with open(TOKEN_CACHE_PATH, "r") as f:
                 tokens = json.load(f)
             client.login(tokens)
             logger.info("Logged in using cached tokens.")
             return client
-        except Exception:
-            logger.info("Cached tokens invalid, re-authenticating...")
+        except (json.JSONDecodeError, Exception) as e:
+            logger.warning(f"Cached tokens invalid ({type(e).__name__}: {e}), re-authenticating...")
+            TOKEN_CACHE_PATH.unlink(missing_ok=True)
+    elif TOKEN_CACHE_PATH.exists():
+        # File exists but is empty (poison pill from a previous failed run)
+        logger.warning("Empty token cache found, removing it.")
+        TOKEN_CACHE_PATH.unlink(missing_ok=True)
 
     # Full login
     try:
@@ -47,6 +52,8 @@ def _get_client() -> Garmin:
             json.dump(client.garth.dumps(), f)
         logger.info("Authenticated and tokens cached.")
     except GarminConnectAuthenticationError as e:
+        # Clean up any partial token file before re-raising
+        TOKEN_CACHE_PATH.unlink(missing_ok=True)
         raise ValueError(f"Garmin authentication failed: {e}")
 
     return client

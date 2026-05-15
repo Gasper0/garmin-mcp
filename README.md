@@ -153,6 +153,23 @@ If the tools return data, you're set.
 
 ## Troubleshooting
 
+### `'Garmin' object has no attribute 'garth'` error
+
+This means `garminconnect` was installed in version 0.3.x, which broke compatibility with this MCP. Versions 0.1.0 of this server require `garminconnect` 0.2.x.
+
+**Fix:**
+
+```bash
+cd ~/garmin-mcp
+source venv/bin/activate
+pip install --force-reinstall "garminconnect==0.2.25"
+rm -f ~/.garmin_mcp_tokens
+```
+
+Then fully restart Claude (Cmd+Q on macOS — closing the window isn't enough) so the MCP server reloads with the new dependency version.
+
+> **Note**: This issue only affects users who installed before v0.1.1. From v0.1.1 onwards, `garminconnect` is pinned to a known-good version in `requirements.txt`.
+
 ### Authentication error on first run
 
 - Verify your `GARMIN_EMAIL` and `GARMIN_PASSWORD` in `.env` are correct
